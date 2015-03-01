@@ -4,8 +4,13 @@ LDFLAGS=-lz -lpthread
 OBJS=util.o status.o pagerank.o
 BINS=cpagerank gpagerank
 
-ALL: $(OBJS) $(BINS)
+URL=http://snap.stanford.edu/data/web-Google.txt.gz
 
+ALL: $(OBJS) $(BINS) web-Google.txt.gz
+
+web-Google.txt.gz:
+	curl -O $(URL)
+	
 %.o: %.cc %.h
 	clang++ -O3 $(CFLAGS) -c -o $@ $<
 
