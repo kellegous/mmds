@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/fcntl.h>
 #include <string>
+#include <string.h>
 #include <unordered_map>
 #include <math.h>
 #include <zlib.h>

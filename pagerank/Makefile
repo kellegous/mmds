@@ -1,5 +1,5 @@
-CFLAGS=-Wall
-LDFLAGS=-lz
+CFLAGS=-Wall -std=c++11
+LDFLAGS=-lz -lpthread
 
 OBJS=util.o status.o pagerank.o
 BINS=cpagerank gpagerank
