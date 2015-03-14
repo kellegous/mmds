@@ -32,9 +32,6 @@ def simple(S, U):
 def largefirst(S, U):
 	return simple(sorted(S, key=lambda x: -len(x)), U)
 
-def fmt(S):
-	return [''.join(list(s)) for s in S]
-
 S, U = setup(S)
 print len(dumb(S, U)) / 4.0
 print len(simple(S, U)) / 4.0
