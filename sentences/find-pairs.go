@@ -137,10 +137,6 @@ func (x *Idx) CountPairs() int {
 	return c
 }
 
-func count(x *Idx, ch chan int, sns []*Sentence) {
-	go x.countPairs(ch, sns)
-}
-
 func (x *Idx) countPairs(ch chan int, sns []*Sentence) {
 	c := 0
 
