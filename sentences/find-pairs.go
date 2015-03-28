@@ -112,11 +112,10 @@ func (x *Idx) Add(s []uint32) {
 }
 
 func NChoose2(n int) int {
-	v := 0
-	for i := 1; i < n; i++ {
-		v += (n - i)
+	if n < 2 {
+		return 0
 	}
-	return v
+	return n * (n - 1) >> 1
 }
 
 func (x *Idx) CountPairs() int {
