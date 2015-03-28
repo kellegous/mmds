@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"runtime"
 	"unsafe"
 )
 
@@ -119,8 +120,29 @@ func NChoose2(n int) int {
 }
 
 func (x *Idx) CountPairs() int {
-	c := 0
 	sns := x.all
+	w := runtime.NumCPU()
+	n := len(sns) / (w - 1)
+	ch := make(chan int, w)
+	for len(sns) > n {
+		go x.countPairs(ch, sns[:n])
+		sns = sns[n:]
+	}
+	x.countPairs(ch, sns)
+
+	c := 0
+	for i := 0; i < w; i++ {
+		c += <-ch
+	}
+	return c
+}
+
+func count(x *Idx, ch chan int, sns []*Sentence) {
+	go x.countPairs(ch, sns)
+}
+
+func (x *Idx) countPairs(ch chan int, sns []*Sentence) {
+	c := 0
 
 	head, tail := x.head, x.tail
 
@@ -165,7 +187,7 @@ func (x *Idx) CountPairs() int {
 		}
 	}
 
-	return c
+	ch <- c
 }
 
 func LoadSentences(r io.Reader) (*Idx, error) {
@@ -270,6 +292,8 @@ func HasSingleEditOrLess(a, b []uint32) bool {
 func main() {
 	flagSrc := flag.String("src", "test.txt.zip", "the input file")
 	flag.Parse()
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	idx, err := LoadSentencesFromFile(*flagSrc)
 	if err != nil {
