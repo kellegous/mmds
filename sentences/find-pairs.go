@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"runtime"
+	"time"
 	"unsafe"
 )
 
@@ -196,9 +197,21 @@ func LoadSentences(r io.Reader) (*Idx, error) {
 
 	idx := NewIdx()
 
+	wch, cch := make(chan []uint32, 100), make(chan bool)
+
+	go func() {
+		for s := range wch {
+			idx.Add(s)
+		}
+
+		cch <- true
+	}()
+
 	for {
 		b, p, err := br.ReadLine()
 		if err == io.EOF {
+			close(wch)
+			<-cch
 			return idx, nil
 		} else if err != nil {
 			return nil, err
@@ -213,7 +226,8 @@ func LoadSentences(r io.Reader) (*Idx, error) {
 		wrds := atm.Atoms(bytes.Split(
 			line[bytes.Index(line, space)+1:],
 			space))
-		idx.Add(wrds)
+		wch <- wrds
+		// idx.Add(wrds)
 		buf.Reset()
 	}
 }
@@ -291,10 +305,19 @@ func main() {
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	at := time.Now()
 	idx, err := LoadSentencesFromFile(*flagSrc)
 	if err != nil {
 		log.Panic(err)
 	}
 
+	bt := time.Now()
+
 	fmt.Printf("%d\n", idx.CountPairs())
+
+	ct := time.Now()
+	fmt.Printf("loading & indexing: %s, counting: %s, total: %s\n",
+		bt.Sub(at),
+		ct.Sub(bt),
+		ct.Sub(at))
 }
